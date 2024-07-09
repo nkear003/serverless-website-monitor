@@ -1,8 +1,8 @@
-import { monitor } from "./handler";
+import { fetchWebsiteContent } from "./handler";
 
-describe("Basic monitor test", () => {
+describe("Basic tests", () => {
   test("results exists", async () => {
-    const results = await monitor();
-    expect(results).toBeDefined();
+    const results = await fetchWebsiteContent();
+    expect(results).not.toBeNull();
   });
 });
