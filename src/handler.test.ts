@@ -1,8 +1,8 @@
 import { monitor } from "./handler";
 
-describe("Monitor should return something", () => {
-  test("returns anything", () => {
-    const results = monitor();
-    expect(results).not.toBe(false);
+describe("Basic monitor test", () => {
+  test("results exists", async () => {
+    const results = await monitor();
+    expect(results).toBeDefined();
   });
 });
