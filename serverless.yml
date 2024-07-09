@@ -24,4 +24,4 @@ functions:
   monitor:
     handler: handler.monitor
     events:
-      - schedule: rate(5 minutes) # Adjust the schedule as needed
+      - schedule: rate(5 minutes)
