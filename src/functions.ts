@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const notifyChangeMock = async (changeMessage: string) => {
+export async function notifyChangeMock(changeMessage: string) {
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.ethereal.email",
@@ -31,7 +31,7 @@ export const notifyChangeMock = async (changeMessage: string) => {
     console.error("Error sending email:", err);
     throw new Error("Failed to send notification email");
   }
-};
+}
 
 export async function fetchWebsiteContent(
   url: string | undefined = process.env.MONITOR_URL
