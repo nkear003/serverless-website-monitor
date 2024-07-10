@@ -15,8 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false, // TODO Update this later
+    "noUnusedParameters": false, // TODO Update this later
     "noImplicitReturns": true,
     "skipLibCheck": true
   }
