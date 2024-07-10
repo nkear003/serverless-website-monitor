@@ -1,5 +1,5 @@
 import nock from "nock";
-import { fetchWebsiteContent, notifyChangeMock } from "./handler";
+import { fetchWebsiteContent, notifyChangeMock } from "./functions";
 // import { writeOneToDb, closeDatabaseConnection } from "./mongodb";
 
 const testUrl = "http://example.com";
