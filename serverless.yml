@@ -24,6 +24,6 @@ provider:
 
 functions:
   monitor:
-    handler: handler.monitor
+    handler: dist/handler.monitor
     events:
       - schedule: rate(1 minute)
