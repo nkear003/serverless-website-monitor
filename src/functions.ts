@@ -1,9 +1,26 @@
 import nodemailer from "nodemailer";
 import axios from "axios";
 import cheerio from "cheerio";
+import { google } from "googleapis";
 import dotenv from "dotenv";
 
 dotenv.config();
+
+const { GOOGLE_SHEET_ID: spreadsheetId, GOOGLE_SHEET_NAME: sheetName } =
+  process.env;
+
+const sheets = google.sheets("v4");
+
+export const getRange = async (): Promise<string> => {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: "Sheet1!A:A",
+  });
+
+  const rows = res.data.values;
+  const rowNumber = rows ? rows.length + 1 : 1;
+  return `${sheetName}!${rowNumber}:${rowNumber}`; // Example Sheet1!1:1
+};
 
 export async function notifyChangeMock(changeMessage: string) {
   try {
