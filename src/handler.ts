@@ -5,6 +5,7 @@ import cheerio from "cheerio";
 // import { google } from "googleapis";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import type { Payload } from "./global";
 
 dotenv.config();
 

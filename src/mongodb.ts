@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
+import type { Payload } from "./global";
 
 dotenv.config();
 
