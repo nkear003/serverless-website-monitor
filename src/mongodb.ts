@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import type { Payload } from "./global";
+import type { Payload } from "./types";
 
 dotenv.config();
 
@@ -42,10 +42,21 @@ export async function writeOneToDb(
   try {
     const db = await connectToDatabase();
     await db.collection(collection).insertOne(payload);
+
     console.log("Data written to MongoDB");
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Data written to database" }),
+    };
   } catch (err) {
-    console.error("Error writing data to MongoDB", err);
-    throw err;
+    console.error("Error writing to database:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Internal Server Error" }),
+    };
+  } finally {
+    await closeDatabaseConnection();
   }
 }
 

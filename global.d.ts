@@ -1,9 +1,6 @@
-export type Payload = {
-  message: string;
-};
-
 namespace NodeJS {
   interface ProcessEnv {
+    NODE_ENV: string;
     SENDGRID_API_KEY: string;
     TWILIO_ACCOUNT_SID: string;
     TWILIO_AUTH_TOKEN: string;
