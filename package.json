@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watch",
-    "invoke-local": "serverless invoke local --function monitor"
+    "invoke-local": "serverless invoke local --function monitor",
+    "generate-new-env-example": "sh create-env-example.sh"
   },
   "keywords": [],
   "author": "",
