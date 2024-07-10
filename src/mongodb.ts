@@ -42,19 +42,9 @@ export async function writeOneToDb(
   try {
     const db = await connectToDatabase();
     await db.collection(collection).insertOne(payload);
-
-    console.log("Data written to MongoDB");
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "Data written to database" }),
-    };
+    console.info("Data written to MongoDB");
   } catch (err) {
     console.error("Error writing to database:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error" }),
-    };
   } finally {
     await closeDatabaseConnection();
   }
