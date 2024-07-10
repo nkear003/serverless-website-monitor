@@ -1,94 +1,133 @@
 import axios from "axios";
 import cheerio from "cheerio";
-import sgMail from "@sendgrid/mail";
-import twilio from "twilio";
-import { google } from "googleapis";
+// import sgMail from "@sendgrid/mail";
+// import twilio from "twilio";
+// import { google } from "googleapis";
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+const {
+  ETHEREAL_PASSWORD: etherealPass,
+  ETHEREAL_NAME: etherealName,
+  ETHEREAL_USER: etherealUser,
+  TO_EMAIL: toEmail,
+  MONITOR_URL: monitorUrl,
+} = process.env;
 
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+export const notifyChangeMock = async (changeMessage: string) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
+      auth: {
+        user: etherealUser,
+        pass: etherealPass,
+      },
+    });
 
-const oauth2Client = new google.auth.OAuth2();
-oauth2Client.setCredentials({
-  client_email: process.env.GOOGLE_CLIENT_EMAIL,
-  private_key: (process.env.GOOGLE_PRIVATE_KEY as string).replace(/\\n/g, "\n"),
-});
+    // send mail with defined transport object
+    const info = await transporter.sendMail({
+      from: `"${etherealName}" <${etherealUser}>`, // sender address
+      to: toEmail, // list of receivers
+      subject: "Change to website", // Subject line
+      text: changeMessage, // plain text body
+      html: `<b>${changeMessage}</b>`, // html body
+    });
 
-const sheets = google.sheets({ version: "v4", auth: oauth2Client });
-const sheetId = process.env.GOOGLE_SHEET_ID;
+    console.log("Message sent: %s", info.messageId); // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
+    return info.messageId;
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+};
+
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+
+// const twilioClient = twilio(
+//   process.env.TWILIO_ACCOUNT_SID,
+//   process.env.TWILIO_AUTH_TOKEN
+// );
+
+// const oauth2Client = new google.auth.OAuth2();
+// oauth2Client.setCredentials({
+//   client_email: process.env.GOOGLE_CLIENT_EMAIL,
+//   private_key: (process.env.GOOGLE_PRIVATE_KEY as string).replace(/\\n/g, "\n"),
+// });
+
+// const sheets = google.sheets({ version: "v4", auth: oauth2Client });
+// const sheetId = process.env.GOOGLE_SHEET_ID;
 
 let previousContent = "";
 
-async function fetchWebsiteContent(): Promise<string | null> {
+export async function fetchWebsiteContent(
+  url: string | undefined = monitorUrl
+): Promise<string | null> {
   try {
-    const response = await axios.get(process.env.MONITOR_URL as string);
+    const response = await axios.get(url as string);
     const $ = cheerio.load(response.data);
-    return $("body").html() || "";
+    return $("body").html();
   } catch (error) {
     console.error("Error fetching website content:", error);
     return null;
   }
 }
 
-async function notifyChange(change: string): Promise<void> {
-  const emailMessage = {
-    to: process.env.TO_EMAIL as string,
-    from: process.env.FROM_EMAIL as string,
-    subject: "Website Change Detected",
-    text: `Change detected on ${process.env.MONITOR_URL}:\n\n${change}`,
-  };
+// async function notifyChange(change: string): Promise<void> {
+//   const emailMessage = {
+//     to: process.env.TO_EMAIL as string,
+//     from: process.env.FROM_EMAIL as string,
+//     subject: "Website Change Detected",
+//     text: `Change detected on ${process.env.MONITOR_URL}:\n\n${change}`,
+// };
 
-  try {
-    await sgMail.send(emailMessage);
-    console.log("Email sent");
-  } catch (error) {
-    console.error("Error sending email:", error);
-  }
+//   try {
+//     await sgMail.send(emailMessage);
+//     console.log("Email sent");
+//   } catch (error) {
+//     console.error("Error sending email:", error);
+//   }
 
-  //   try {
-  //     await twilioClient.messages.create({
-  //       body: `Change detected on ${process.env.MONITOR_URL}:\n\n${change}`,
-  //       from: process.env.TWILIO_PHONE_NUMBER,
-  //       to: process.env.TO_PHONE_NUMBER,
-  //     });
-  //     console.log("SMS sent");
-  //   } catch (error) {
-  //     console.error("Error sending SMS:", error);
-  //   }
-}
+//     try {
+//       await twilioClient.messages.create({
+//         body: `Change detected on ${process.env.MONITOR_URL}:\n\n${change}`,
+//         from: process.env.TWILIO_PHONE_NUMBER,
+//         to: process.env.TO_PHONE_NUMBER,
+//       });
+//       console.log("SMS sent");
+//     } catch (error) {
+//       console.error("Error sending SMS:", error);
+//     }
+// }
 
-async function logChangeToSheet(change: string): Promise<void> {
-  const now = new Date().toISOString();
-  try {
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId,
-      range: "Sheet1!A1",
-      valueInputOption: "RAW",
-      resource: {
-        values: [[now, change]],
-      },
-    });
-    console.log("Change logged to Google Sheet");
-  } catch (error) {
-    console.error("Error logging change to Google Sheet:", error);
-  }
-}
+// async function logChangeToSheet(change: string): Promise<void> {
+//   const now = new Date().toISOString();
+//   try {
+//     await sheets.spreadsheets.values.append({
+//       spreadsheetId: sheetId,
+//       range: "Sheet1!A1",
+//       valueInputOption: "RAW",
+//       resource: {
+//         values: [[now, change]],
+//       },
+//     });
+//     console.log("Change logged to Google Sheet");
+//   } catch (error) {
+//     console.error("Error logging change to Google Sheet:", error);
+//   }
+// }
 
 export const monitor = async (): Promise<void> => {
   const currentContent = await fetchWebsiteContent();
   if (!currentContent) return;
 
   if (currentContent !== previousContent) {
-    const change = `Content changed at ${new Date().toISOString()}`;
-    console.log(change);
-    // await notifyChange(change);
-    // await logChangeToSheet(change);
+    const changeMessage = `Content changed at ${new Date().toISOString()}`;
+    await notifyChangeMock(changeMessage);
+    // await logChangeToSheet(changeMessage);
     previousContent = currentContent;
   }
 };
