@@ -1,7 +1,7 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: nkearney
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
-app: sensory-minds-backend-challenge
+app: website-monitor
 service: website-monitoring
 plugins:
   - serverless-offline
