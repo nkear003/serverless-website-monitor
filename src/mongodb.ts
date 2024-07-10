@@ -35,21 +35,17 @@ export async function connectToDatabase() {
 
 export async function writeOneToDb(
   payload: Payload,
-  collection: string = process.env.DB_NAME || "default"
+  collection: string = process.env.DB_COLLECTION_NAME || "default"
 ) {
   if (!payload) throw new Error("Missing payload");
 
-  if (!process.env.DB_COLLECTION_NAME) {
-    console.warn(`Missing collection name, using default`);
-  }
-
   try {
     const db = await connectToDatabase();
-    db.collection(collection).insertOne(payload);
+    await db.collection(collection).insertOne(payload);
+    console.log("Data written to MongoDB");
   } catch (err) {
-    console.error("Error writing data", err);
-  } finally {
-    closeDatabaseConnection();
+    console.error("Error writing data to MongoDB", err);
+    throw err;
   }
 }
 

@@ -1,5 +1,6 @@
 import nock from "nock";
 import { fetchWebsiteContent, notifyChangeMock } from "./handler";
+// import { writeOneToDb, closeDatabaseConnection } from "./mongodb";
 
 const testUrl = "http://example.com";
 const testHtml = `
@@ -17,18 +18,18 @@ const testHtmlChanged = `
     </html>
 `;
 
-// Don't print errors
-beforeEach(() => {
-  jest.spyOn(console, "log").mockImplementation(() => {});
-  jest.spyOn(console, "warn").mockImplementation(() => {});
-  jest.spyOn(console, "error").mockImplementation(() => {});
-});
-
 afterEach(() => {
   nock.cleanAll();
 });
 
 describe("Website fetching function", () => {
+  // Don't print errors
+  beforeEach(() => {
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
   it("should return html content when request is successful", async () => {
     nock(testUrl).get("/").reply(200, testHtml);
 
@@ -72,3 +73,43 @@ describe("Monitor function", () => {
     expect(messageId).toContain("@ethereal.email");
   });
 });
+
+// describe("MongoDB", () => {
+//   test("connection to DB", async () => {
+//     try {
+//       const client = await connectToDatabase();
+//       expect(client).toBeDefined();
+//     } catch (err) {
+//       console.err("Error connecting to database", err);
+//     } finally {
+//       await closeDatabaseConnection();
+//     }
+//   });
+
+//   test("find one item in database", async () => {
+//     try {
+//       const client = await connectToDatabase();
+//       const db = client.db("default");
+//       const result = db.collection("default").findOne();
+//       console.log(result);
+//       expect(result).toBeDefined();
+//     } catch (err) {
+//       console.err("Error connecting to database", err);
+//     } finally {
+//       await closeDatabaseConnection();
+//     }
+//   });
+
+//   test("write one item to database", async () => {
+//     try {
+//       const client = await connectToDatabase();
+//       const db = client.db("default");
+//       console.log(result);
+//       expect(result).toBeDefined();
+//     } catch (err) {
+//       console.err("Error connecting to database", err);
+//     } finally {
+//       await closeDatabaseConnection();
+//     }
+//   });
+// });
