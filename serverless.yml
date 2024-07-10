@@ -3,6 +3,8 @@ org: nkearney
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
 app: sensory-minds-backend-challenge
 service: website-monitoring
+plugins:
+  - serverless-offline
 
 provider:
   name: aws
