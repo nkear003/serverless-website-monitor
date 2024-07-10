@@ -1,7 +1,9 @@
 {
-  "name": "sensory-minds-backend-challenge",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "serverless-website-monitor",
+  "version": "0.0.1",
+  "engines": {
+    "node": "18"
+  },
   "scripts": {
     "test": "jest --watch",
     "dev": "tsc --watch",
@@ -10,7 +12,7 @@
     "generate-new-env-example": "sh create-env-example.sh"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nicholas Kearney",
   "license": "ISC",
   "description": "",
   "dependencies": {
