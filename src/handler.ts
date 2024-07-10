@@ -5,6 +5,7 @@ import cheerio from "cheerio";
 // import { google } from "googleapis";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { writeOneToDb, closeDatabaseConnection } from "./mongodb";
 import type { Payload } from "./global";
 
 dotenv.config();
@@ -40,8 +41,8 @@ export const notifyChangeMock = async (changeMessage: string) => {
 
     console.log("Message sent: %s", info.messageId); // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
     return info.messageId;
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return undefined;
   }
 };
@@ -71,8 +72,8 @@ export async function fetchWebsiteContent(
     const response = await axios.get(url as string);
     const $ = cheerio.load(response.data);
     return $("body").html();
-  } catch (error) {
-    console.error("Error fetching website content:", error);
+  } catch (err) {
+    console.error("Error fetching website content:", err);
     return null;
   }
 }
@@ -88,7 +89,7 @@ export async function fetchWebsiteContent(
 //   try {
 //     await sgMail.send(emailMessage);
 //     console.log("Email sent");
-//   } catch (error) {
+//   } catch (err) {
 //     console.error("Error sending email:", error);
 //   }
 
@@ -99,7 +100,7 @@ export async function fetchWebsiteContent(
 //         to: process.env.TO_PHONE_NUMBER,
 //       });
 //       console.log("SMS sent");
-//     } catch (error) {
+//     } catch (err) {
 //       console.error("Error sending SMS:", error);
 //     }
 // }
@@ -116,10 +117,30 @@ export async function fetchWebsiteContent(
 //       },
 //     });
 //     console.log("Change logged to Google Sheet");
-//   } catch (error) {
+//   } catch (err) {
 //     console.error("Error logging change to Google Sheet:", error);
 //   }
 // }
+
+export async function writeToDb(payload: Payload) {
+  try {
+    const result = await writeOneToDb(payload);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(result),
+    };
+  } catch (err) {
+    console.error("Error in fetchDataFromMongoDB:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Internal Server Error" }),
+    };
+  } finally {
+    // Optionally close the connection after each request
+    await closeDatabaseConnection();
+  }
+}
 
 export const monitor = async (): Promise<void> => {
   const currentContent = await fetchWebsiteContent();
@@ -128,6 +149,7 @@ export const monitor = async (): Promise<void> => {
   if (currentContent !== previousContent) {
     const changeMessage = `Content changed at ${new Date().toISOString()}`;
     await notifyChangeMock(changeMessage);
+    await writeOneToDb({ message: changeMessage });
     // await logChangeToSheet(changeMessage);
     previousContent = currentContent;
   }
