@@ -29,7 +29,7 @@ export const notifyChangeMock = async (changeMessage: string) => {
     return info.messageId;
   } catch (err) {
     console.error("Error sending email:", err);
-    return undefined;
+    throw new Error("Failed to send notification email");
   }
 };
 
