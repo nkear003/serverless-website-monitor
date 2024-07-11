@@ -5,7 +5,7 @@
     "node": "18"
   },
   "scripts": {
-    "test:watch": "jest --watch",
+    "test": "jest --watch",
     "tsc:watch": "tsc --watch",
     "tsc:build": "tsc",
     "docker:up": "docker-compose up -d",
