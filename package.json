@@ -10,6 +10,7 @@
     "tsc:build": "tsc",
     "docker:up": "docker-compose up -d",
     "serverless:invoke-local:monitor": "npx serverless invoke local --function monitor",
+    "serverless:invoke-local:monitor:debug": "npx serverless invoke local --function monitor --debug",
     "serverless:offline": "npx serverless offline",
     "sh:generate-new-env-example": "sh create-env-example.sh",
     "start:test": "pnpm run tsc:build && pnpm run docker:up && pnpm run serverless:offline"
