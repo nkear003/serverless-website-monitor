@@ -4,13 +4,16 @@ import {
   fetchWebsiteContent,
 } from "./functions";
 import { google } from "googleapis";
-import credentials from "../credentials.json";
 import { Context } from "aws-lambda";
 import { MongoClient } from "mongodb";
 import { setupEnvironment } from "./config";
 
 setupEnvironment();
 
+const credentials = {
+  client_email: process.env.GOOGLE_API_CLIENT_EMAIL,
+  private_key: process.env.GOOGLE_API_PRIVATE_KEY,
+};
 // Acquire an auth client, and bind it to all future calls
 const auth = new google.auth.GoogleAuth({
   credentials,
