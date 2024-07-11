@@ -44,7 +44,7 @@ export async function notifyChangeByEmail(
       html: `<b>${changeMessage}</b>`,
     });
 
-    console.log("Message sent: %s", info.messageId);
+    console.info("Message sent: %s", info.messageId);
     return info.messageId;
   } catch (err) {
     console.error("Error sending email:", err);
