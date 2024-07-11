@@ -5,15 +5,12 @@ dotenv.config();
 export const setupEnvironment = (): void => {
   const requiredEnvVars = [
     "TO_EMAIL",
-    "FROM_EMAIL",
     "GOOGLE_SHEET_ID",
     "GOOGLE_SHEET_NAME",
     "GOOGLE_SHEET_PUBLIC_URL",
-    "GOOGLE_CLIENT_EMAIL",
     "MONITOR_URL",
     "ETHEREAL_PASSWORD",
     "ETHEREAL_EMAIL",
-    "ETHEREAL_NAME",
     "MONGO_CONNECTION_STRING",
     "DB_NAME",
     "DB_COLLECTION_NAME",
