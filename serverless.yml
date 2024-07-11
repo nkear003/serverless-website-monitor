@@ -8,9 +8,6 @@ provider:
   name: aws
   runtime: nodejs18.x
   environment:
-    SENDGRID_API_KEY: ${env:SENDGRID_API_KEY}
-    TWILIO_ACCOUNT_SID: ${env:TWILIO_ACCOUNT_SID}
-    TWILIO_AUTH_TOKEN: ${env:TWILIO_AUTH_TOKEN}
     TO_EMAIL: ${env:TO_EMAIL}
     FROM_EMAIL: ${env:FROM_EMAIL}
     GOOGLE_SHEET_ID: ${env:GOOGLE_SHEET_ID}

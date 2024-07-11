@@ -1,11 +1,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: string;
-    SENDGRID_API_KEY: string;
-    TWILIO_ACCOUNT_SID: string;
-    TWILIO_AUTH_TOKEN: string;
-    TWILIO_PHONE_NUMBER: string;
-    TO_PHONE_NUMBER: string;
     TO_EMAIL: string;
     FROM_EMAIL: string;
     GOOGLE_SHEET_ID: string;

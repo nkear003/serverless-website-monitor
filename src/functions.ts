@@ -22,7 +22,9 @@ export const getRange = async (): Promise<string> => {
   return `${sheetName}!${rowNumber}:${rowNumber}`; // Example Sheet1!1:1
 };
 
-export async function notifyChangeMock(changeMessage: string) {
+export async function notifyChangeByEmail(
+  changeMessage: string
+): Promise<string> {
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.ethereal.email",
@@ -58,7 +60,28 @@ export async function fetchWebsiteContent(
     const $ = cheerio.load(response.data);
     return $("body").html();
   } catch (err) {
-    console.error("Error fetching website content:", err);
+    console.error("Error fetching website content", err);
     return null;
   }
+}
+
+export function extractViews(html: string | null): number | null {
+  if (html === null) return html;
+
+  // Regular expression to match a number with commas followed by " views"
+  const regex = /(\d{1,3}(?:,\d{3})*) views/g;
+
+  // Find all matches in the HTML
+  const matches = html.match(regex);
+
+  if (!matches) return null;
+
+  // Extract the first match and remove commas
+  const numberWithCommas = matches[0].replace(/,/g, "");
+
+  // Extract the number part and parse it into a number
+  const number = parseInt(numberWithCommas, 10);
+
+  // Return the number
+  return number;
 }

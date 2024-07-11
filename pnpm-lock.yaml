@@ -40,6 +40,9 @@ devDependencies:
   '@jest/globals':
     specifier: ^29.7.0
     version: 29.7.0
+  '@types/aws-lambda':
+    specifier: ^8.10.141
+    version: 8.10.141
   '@types/jest':
     specifier: ^29.5.12
     version: 29.5.12
@@ -1917,6 +1920,10 @@ packages:
       '@smithy/abort-controller': 3.1.1
       '@smithy/types': 3.3.0
       tslib: 2.6.3
+    dev: true
+
+  /@types/aws-lambda@8.10.141:
+    resolution: {integrity: sha512-SMWlRBukG9KV8ZNjwemp2AzDibp/czIAeKKTw09nCPbWxVskIxactCJCGOp4y6I1hCMY7T7UGfySvBLXNeUbEw==}
     dev: true
 
   /@types/babel__core@7.20.5:
