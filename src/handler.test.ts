@@ -1,7 +1,5 @@
 import nock from "nock";
-import { google } from "googleapis";
 import { fetchWebsiteContent, getRange, notifyChangeMock } from "./functions";
-// import { writeOneToDb, closeDatabaseConnection } from "./mongodb";
 
 const testUrl = "http://example.com";
 const testHtml = `
@@ -76,24 +74,10 @@ describe("Monitor function", () => {
 });
 
 describe("Google sheets helpers", () => {
-  // Load credentials securely
-  const credentials = require("../credentials.json");
-
-  const sheets = google.sheets("v4");
-
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-
-  // Acquire an auth client, and bind it to all future calls
-  google.options({ auth: auth });
-
   const sheetName = process.env.GOOGLE_SHEET_NAME;
 
-  it("updates gets the right values for the next range", async () => {
+  test("get range contains google sheets syntax", async () => {
     const range = await getRange();
-    const expectedResult = `${sheetName}!1:1`;
     expect(range).toContain(sheetName);
     expect(range).toContain(":");
     expect(range).toContain("!");
