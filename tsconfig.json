@@ -15,8 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
-    "noUnusedLocals": false, // TODO Update this later
-    "noUnusedParameters": false, // TODO Update this later
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "resolveJsonModule": true
