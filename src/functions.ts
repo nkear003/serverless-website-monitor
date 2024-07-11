@@ -52,34 +52,24 @@ export async function notifyChangeByEmail(
   }
 }
 
-export async function fetchWebsiteContent(url: string): Promise<string | null> {
+export async function fetchWebsiteContent(url: string) {
   try {
+    // Get the URL
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
-    return $("body").html();
+
+    // Extract the view count
+    const viewCountText = $('meta[itemprop="interactionCount"]').attr(
+      "content"
+    );
+
+    const viewCount = viewCountText ? parseInt(viewCountText, 10) : undefined;
+
+    return {
+      viewCount: viewCount || undefined,
+    };
   } catch (err) {
     console.error("Error fetching website content", err);
     return null;
   }
-}
-
-export function extractViews(html: string | null): number | null {
-  if (html === null) return html;
-
-  // Regular expression to match a number with commas followed by " views"
-  const regex = /(\d{1,3}(?:,\d{3})*) views/g;
-
-  // Find all matches in the HTML
-  const matches = html.match(regex);
-
-  if (!matches) return null;
-
-  // Extract the first match and remove commas
-  const numberWithCommas = matches[0].replace(/,/g, "");
-
-  // Extract the number part and parse it into a number
-  const number = parseInt(numberWithCommas, 10);
-
-  // Return the number
-  return number;
 }

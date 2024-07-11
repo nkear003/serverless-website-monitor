@@ -2,7 +2,6 @@ import {
   getRange,
   notifyChangeByEmail,
   fetchWebsiteContent,
-  extractViews,
 } from "./functions";
 import { google } from "googleapis";
 import credentials from "../credentials.json";
@@ -12,7 +11,7 @@ import { setupEnvironment } from "./config";
 
 setupEnvironment();
 
-let previousContent = "";
+// let previousViewCount = undefined;
 
 // Acquire an auth client, and bind it to all future calls
 const auth = new google.auth.GoogleAuth({
@@ -42,36 +41,37 @@ export const monitor = async (context?: Context): Promise<void> => {
   try {
     if (context) context.callbackWaitsForEmptyEventLoop = false;
 
-    const currentContent = await fetchWebsiteContent(process.env.MONITOR_URL);
-    if (!currentContent) return;
+    const results = await fetchWebsiteContent(process.env.MONITOR_URL);
+    const viewCount = results?.viewCount;
+    // if (!currentContent) return;
 
-    if (currentContent !== previousContent) {
-      const date = new Date().toISOString();
-      const changeMessage = `Content changed at ${date}`;
-      const currentViews = extractViews(currentContent);
+    // if (currentContent !== previousContent) {
+    const date = new Date().toISOString();
+    const changeMessage = `Content changed at ${date}`;
+    // const currentViews = extractViews(currentContent);
 
-      // Update google sheets
-      const range = await getRange();
-      sheets.spreadsheets.values.update({
-        range,
-        spreadsheetId,
-        valueInputOption,
-        requestBody: {
-          values: [[date, currentViews]],
-        },
-      });
+    // Update google sheets
+    const range = await getRange();
+    sheets.spreadsheets.values.update({
+      range,
+      spreadsheetId,
+      valueInputOption,
+      requestBody: {
+        values: [[date, viewCount]],
+      },
+    });
 
-      // Update db
-      const clientConnection = await client.connect();
-      const db = clientConnection.db(dbName);
-      await db.collection(collection).insertOne({
-        timestamp: date,
-        // viewsBefore: previousViews,
-        viewsAfter: currentViews,
-      });
-      await notifyChangeByEmail(changeMessage);
-      previousContent = currentContent;
-    }
+    // Update db
+    const clientConnection = await client.connect();
+    const db = clientConnection.db(dbName);
+    await db.collection(collection).insertOne({
+      timestamp: date,
+      // viewsBefore: previousViews,
+      viewCount,
+    });
+    await notifyChangeByEmail(changeMessage);
+    // previousContent = currentContent;
+    // }
   } catch (err) {
     console.error("Error in monitor function:", err);
     throw err;
