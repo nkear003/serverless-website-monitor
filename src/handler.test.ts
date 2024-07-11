@@ -1,23 +1,20 @@
-import nock from "nock";
 import { google } from "googleapis";
 import { fetchWebsiteContent, getRange } from "./functions";
-import credentials from "../credentials.json";
 import { setupEnvironment } from "./config";
 
 setupEnvironment();
 
-// Don't print logs and warnings
+// Don't print info logs and warnings
 beforeEach(() => {
   jest.spyOn(console, "info").mockImplementation(() => {});
-  // jest.spyOn(console, "log").mockImplementation(() => {});
   jest.spyOn(console, "warn").mockImplementation(() => {});
-  // jest.spyOn(console, "error").mockImplementation(() => {});
 });
 
-// Stop nock from intercepting
-nock.restore();
-
 describe("Google sheets helpers", () => {
+  const credentials = {
+    client_email: process.env.GOOGLE_API_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_API_PRIVATE_KEY,
+  };
   const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
