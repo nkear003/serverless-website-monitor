@@ -42,7 +42,7 @@ export const monitor = async (context?: Context): Promise<void> => {
   try {
     if (context) context.callbackWaitsForEmptyEventLoop = false;
 
-    const currentContent = await fetchWebsiteContent();
+    const currentContent = await fetchWebsiteContent(process.env.MONITOR_URL);
     if (!currentContent) return;
 
     if (currentContent !== previousContent) {
@@ -66,7 +66,7 @@ export const monitor = async (context?: Context): Promise<void> => {
       const db = clientConnection.db(dbName);
       await db.collection(collection).insertOne({
         timestamp: date,
-        viewsBefore: 0,
+        // viewsBefore: previousViews,
         viewsAfter: currentViews,
       });
       await notifyChangeByEmail(changeMessage);

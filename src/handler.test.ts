@@ -28,15 +28,15 @@ const testHtmlChanged = `
 `;
 
 describe("Website fetching function", () => {
-  afterEach(() => {
-    nock.cleanAll();
-  });
-
   // Don't print errors
   beforeEach(() => {
     jest.spyOn(console, "log").mockImplementation(() => {});
     jest.spyOn(console, "warn").mockImplementation(() => {});
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    // jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    nock.cleanAll();
   });
 
   it("should return html content when request is successful", async () => {
@@ -84,6 +84,9 @@ describe("Monitor function", () => {
 });
 
 describe("Google sheets helpers", () => {
+  // Stop nock from intercepting
+  nock.restore();
+
   const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -102,7 +105,7 @@ describe("Google sheets helpers", () => {
 });
 
 describe("View count extractor", () => {
-  it("should return the correct number of views without commas", () => {
+  it("should return the correct number of views without commas on test html", () => {
     const testHtmlYtVideo = `<ytd-watch-info-text id="ytd-watch-info-text" class="style-scope ytd-watch-metadata" view-count-props="{&quot;numberText&quot;:&quot;12,840,948&quot;,&quot;numberValue&quot;:12840948,&quot;heightPx&quot;:20,&quot;shouldAnimate&quot;:true}" date-text-props="{&quot;numberText&quot;:&quot;9&quot;,&quot;heightPx&quot;:20,&quot;shouldAnimate&quot;:true}" view-count-post-number-text="{&quot;runs&quot;:[{&quot;text&quot;:&quot; views  &quot;,&quot;bold&quot;:true}]}" date-text-post-number-text="{&quot;runs&quot;:[{&quot;text&quot;:&quot;,   &quot;,&quot;bold&quot;:true}]}" date-text-pre-number-text="{&quot;runs&quot;:[{&quot;text&quot;:&quot;Jul &quot;,&quot;bold&quot;:true}]}"><!--css-build:shady--><!--css-build:shady--><div id="info-container" class="style-scope ytd-watch-info-text">
   <div id="view-count" class="style-scope ytd-watch-info-text" aria-label="12,840,948 views  ">
     <yt-formatted-string aria-hidden="true" class="style-scope ytd-watch-info-text" is-empty="function(){var e=va.apply(0,arguments);a.loggingStatus.currentExternalCall=b;a.loggingStatus.bypassProxyController=!0;var g,k=((g=a.is)!=null?g:a.tagName).toLowerCase();kF(k,b,&quot;PROPERTY_ACCESS_CALL_EXTERNAL&quot;);var m;g=(m=c!=null?c:d[b])==null?void 0:m.call.apply(m,[d].concat(ia(e)));a.loggingStatus.currentExternalCall=void 0;a.loggingStatus.bypassProxyController=!1;return g}"><!--css-build:shady--><!--css-build:shady--><yt-attributed-string class="style-scope yt-formatted-string"></yt-attributed-string></yt-formatted-string>
@@ -125,5 +128,14 @@ describe("View count extractor", () => {
 
     const views = extractViews(testHtmlYtVideo);
     expect(views).toStrictEqual(12840948);
+  });
+
+  it("should return a number on real html", async () => {
+    const html = await fetchWebsiteContent(
+      "https://www.youtube.com/watch?v=4rgYUipGJNo"
+    );
+    const views = extractViews(html);
+    console.log(views);
+    expect(typeof views).toBe("number");
   });
 });

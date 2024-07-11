@@ -52,11 +52,9 @@ export async function notifyChangeByEmail(
   }
 }
 
-export async function fetchWebsiteContent(
-  url: string | undefined = process.env.MONITOR_URL
-): Promise<string | null> {
+export async function fetchWebsiteContent(url: string): Promise<string | null> {
   try {
-    const response = await axios.get(url as string);
+    const response = await axios.get(url);
     const $ = cheerio.load(response.data);
     return $("body").html();
   } catch (err) {
