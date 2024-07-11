@@ -21,25 +21,30 @@ const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 const valueInputOption = "RAW";
 
 export const monitor = async (): Promise<void> => {
-  const currentContent = await fetchWebsiteContent();
-  if (!currentContent) return;
+  try {
+    const currentContent = await fetchWebsiteContent();
+    if (!currentContent) return;
 
-  if (currentContent !== previousContent) {
-    const changeMessage = `Content changed at ${new Date().toISOString()}`;
+    if (currentContent !== previousContent) {
+      const changeMessage = `Content changed at ${new Date().toISOString()}`;
 
-    // Update google sheets
-    const range = await getRange();
-    sheets.spreadsheets.values.update({
-      range,
-      spreadsheetId,
-      valueInputOption,
-      requestBody: {
-        values: [[changeMessage]],
-      },
-    });
+      // Update google sheets
+      const range = await getRange();
+      sheets.spreadsheets.values.update({
+        range,
+        spreadsheetId,
+        valueInputOption,
+        requestBody: {
+          values: [[changeMessage]],
+        },
+      });
 
-    await writeOneToDb({ message: changeMessage });
-    await notifyChangeMock(changeMessage);
-    previousContent = currentContent;
+      await writeOneToDb({ message: changeMessage });
+      await notifyChangeMock(changeMessage);
+      previousContent = currentContent;
+    }
+  } catch (err) {
+    console.error("Error in monitor function:", err);
+    throw err;
   }
 };
