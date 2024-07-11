@@ -5,11 +5,14 @@
     "node": "18"
   },
   "scripts": {
-    "test": "jest --watch",
-    "dev": "tsc --watch",
-    "build": "tsc",
-    "invoke-local": "serverless invoke local --function monitor",
-    "generate-new-env-example": "sh create-env-example.sh"
+    "jest:watch": "jest --watch",
+    "tsc:watch": "tsc --watch",
+    "tsc:build": "tsc",
+    "docker:up": "docker-compose up -d",
+    "serverless:invoke-local:monitor": "npx serverless invoke local --function monitor",
+    "serverless:offline": "npx serverless offline",
+    "sh:generate-new-env-example": "sh create-env-example.sh",
+    "test:run": "pnpm run tsc:build && pnpm run docker:up && pnpm run serverless:offline"
   },
   "keywords": [],
   "author": "Nicholas Kearney",
