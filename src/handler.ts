@@ -11,8 +11,6 @@ import { setupEnvironment } from "./config";
 
 setupEnvironment();
 
-// let previousViewCount = undefined;
-
 // Acquire an auth client, and bind it to all future calls
 const auth = new google.auth.GoogleAuth({
   credentials,
@@ -26,29 +24,52 @@ const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 const valueInputOption = "RAW";
 
 // Setup mongoDB
-let cachedClient: MongoClient | null = null;
-let client: MongoClient | null = null;
-if (cachedClient) {
-  client = cachedClient;
+let cachedMongoClient: MongoClient | null = null;
+let mongoClient: MongoClient | null = null;
+if (cachedMongoClient) {
+  console.info("Mongo client existed");
+  mongoClient = cachedMongoClient;
 } else {
-  client = new MongoClient(process.env.MONGO_CONNECTION_STRING);
-  cachedClient = client;
+  console.info("Mongo client didn't exist, creating new...");
+  mongoClient = new MongoClient(process.env.MONGO_CONNECTION_STRING);
+  cachedMongoClient = mongoClient;
 }
 const dbName = process.env.DB_NAME || "default";
 const collection = process.env.DB_COLLECTION_NAME || "default";
+
+mongoClient.on("close", () => {
+  console.info("MongoDB client closed");
+});
 
 export const monitor = async (context?: Context): Promise<void> => {
   try {
     if (context) context.callbackWaitsForEmptyEventLoop = false;
 
+    // Fetch the website
     const results = await fetchWebsiteContent(process.env.MONITOR_URL);
-    const viewCount = results?.viewCount;
-    // if (!currentContent) return;
+    if (typeof results?.viewCount !== "number") {
+      throw new Error("Website fetch failed");
+    }
+    const currentViewCount = results?.viewCount;
 
-    // if (currentContent !== previousContent) {
-    const date = new Date().toISOString();
-    const changeMessage = `Content changed at ${date}`;
-    // const currentViews = extractViews(currentContent);
+    // Establish connection to MongoDB
+    const clientConnection = await mongoClient.connect();
+    console.info("Connected to DB");
+    const db = clientConnection.db(dbName);
+
+    // Get the last document to see if there are changes
+    const latestDoc = await db
+      .collection(collection)
+      .findOne({}, { sort: { createdAt: -1 } });
+
+    // If the view count is the same, stop function execution
+    if (latestDoc?.viewCount === currentViewCount) {
+      console.log("Nothing new");
+      return;
+    }
+
+    // Create a new date here to be used throughout
+    const date = new Date();
 
     // Update google sheets
     const range = await getRange();
@@ -57,21 +78,23 @@ export const monitor = async (context?: Context): Promise<void> => {
       spreadsheetId,
       valueInputOption,
       requestBody: {
-        values: [[date, viewCount]],
+        values: [[date, currentViewCount]],
       },
     });
 
-    // Update db
-    const clientConnection = await client.connect();
-    const db = clientConnection.db(dbName);
+    // Add change to database
     await db.collection(collection).insertOne({
       timestamp: date,
       // viewsBefore: previousViews,
-      viewCount,
+      currentViewCount,
     });
-    await notifyChangeByEmail(changeMessage);
-    // previousContent = currentContent;
-    // }
+
+    // Send email
+    const changeMessage = `Content changed at ${date.toISOString()}`;
+    await notifyChangeByEmail({
+      text: changeMessage,
+      viewCount: currentViewCount,
+    });
   } catch (err) {
     console.error("Error in monitor function:", err);
     throw err;

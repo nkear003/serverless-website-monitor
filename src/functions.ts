@@ -22,30 +22,42 @@ export const getRange = async (): Promise<string> => {
   return `${sheetName}!${rowNumber}:${rowNumber}`; // Example Sheet1!1:1
 };
 
-export async function notifyChangeByEmail(
-  changeMessage: string
-): Promise<string> {
+export async function notifyChangeByEmail({
+  subject = "View count changed",
+  text,
+  viewCount,
+}: {
+  subject?: string;
+  text: string;
+  viewCount: number;
+}): Promise<void> {
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.ethereal.email",
       port: 587,
       secure: false,
       auth: {
-        user: process.env.ETHEREAL_USER,
+        user: process.env.ETHEREAL_EMAIL,
         pass: process.env.ETHEREAL_PASSWORD,
       },
     });
 
+    const website = process.env.MONITOR_URL;
+    const googleSheetUrl = process.env.GOOGLE_SHEET_PUBLIC_URL;
+    const html = `
+      <h1>View count has changed</h1>
+      <p>View count for <a href="${website}">${website}</a> has changed to ${viewCount}</p>
+      <p>You can check out the most recent updates here: <a href="${googleSheetUrl}">${googleSheetUrl}</p>
+    `;
     const info = await transporter.sendMail({
-      from: `"${process.env.ETHEREAL_NAME}" <${process.env.ETHEREAL_USER}>`,
+      from: `"${process.env.FROM_NAME}" <${process.env.ETHEREAL_EMAIL}>`,
       to: process.env.TO_EMAIL,
-      subject: "Change to website",
-      text: changeMessage,
-      html: `<b>${changeMessage}</b>`,
+      subject: subject,
+      text: text,
+      html,
     });
 
     console.info("Message sent: %s", info.messageId);
-    return info.messageId;
   } catch (err) {
     console.error("Error sending email:", err);
     throw new Error("Failed to send notification email");
