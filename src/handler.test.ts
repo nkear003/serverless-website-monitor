@@ -1,5 +1,7 @@
 import nock from "nock";
+import { google } from "googleapis";
 import { fetchWebsiteContent, getRange, notifyChangeMock } from "./functions";
+import credentials from "../credentials.json";
 
 const testUrl = "http://example.com";
 const testHtml = `
@@ -17,11 +19,11 @@ const testHtmlChanged = `
     </html>
 `;
 
-afterEach(() => {
-  nock.cleanAll();
-});
-
 describe("Website fetching function", () => {
+  afterEach(() => {
+    nock.cleanAll();
+  });
+
   // Don't print errors
   beforeEach(() => {
     jest.spyOn(console, "log").mockImplementation(() => {});
@@ -74,6 +76,13 @@ describe("Monitor function", () => {
 });
 
 describe("Google sheets helpers", () => {
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
+
+  // Acquire an auth client, and bind it to all future calls
+  google.options({ auth: auth });
   const sheetName = process.env.GOOGLE_SHEET_NAME;
 
   test("get range contains google sheets syntax", async () => {
