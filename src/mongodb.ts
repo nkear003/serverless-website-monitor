@@ -45,8 +45,6 @@ export async function writeOneToDb(
     console.info("Data written to MongoDB");
   } catch (err) {
     console.error("Error writing to database:", err);
-  } finally {
-    await closeDatabaseConnection();
   }
 }
 
