@@ -2,9 +2,9 @@ import nodemailer from "nodemailer";
 import axios from "axios";
 import cheerio from "cheerio";
 import { google } from "googleapis";
-import dotenv from "dotenv";
+import { setupEnvironment } from "./config";
 
-dotenv.config();
+setupEnvironment();
 
 const { GOOGLE_SHEET_ID: spreadsheetId, GOOGLE_SHEET_NAME: sheetName } =
   process.env;

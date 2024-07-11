@@ -6,7 +6,6 @@ declare namespace NodeJS {
     GOOGLE_SHEET_ID: string;
     GOOGLE_SHEET_NAME: string;
     GOOGLE_CLIENT_EMAIL: string;
-    GOOGLE_PRIVATE_KEY: string;
     MONITOR_URL: string;
     ETHEREAL_PASSWORD: string;
     ETHEREAL_USER: string;

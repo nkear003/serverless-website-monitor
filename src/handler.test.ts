@@ -7,6 +7,9 @@ import {
   notifyChangeByEmail,
 } from "./functions";
 import credentials from "../credentials.json";
+import { setupEnvironment } from "./config";
+
+setupEnvironment();
 
 const testUrl = "http://example.com";
 const testHtml = `

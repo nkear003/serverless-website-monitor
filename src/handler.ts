@@ -5,16 +5,12 @@ import {
   extractViews,
 } from "./functions";
 import { google } from "googleapis";
-import dotenv from "dotenv";
 import credentials from "../credentials.json";
 import { Context } from "aws-lambda";
 import { MongoClient } from "mongodb";
+import { setupEnvironment } from "./config";
 
-if (!process.env.MONGO_CONNECTION_STRING) {
-  throw new Error("Missing mongo connection string");
-}
-
-dotenv.config();
+setupEnvironment();
 
 let previousContent = "";
 
