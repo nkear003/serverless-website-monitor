@@ -10,11 +10,16 @@ import { setupEnvironment } from "./config";
 
 setupEnvironment();
 
+type ChangeDoc = {
+  changeTimestamp: Date;
+  viewCount: number;
+};
+
+// Acquire an auth client, and bind it to all future calls
 const credentials = {
   client_email: process.env.GOOGLE_API_CLIENT_EMAIL,
   private_key: process.env.GOOGLE_API_PRIVATE_KEY,
 };
-// Acquire an auth client, and bind it to all future calls
 const auth = new google.auth.GoogleAuth({
   credentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -62,7 +67,7 @@ export const monitor = async (context?: Context): Promise<void> => {
 
     // Get the last document to see if there are changes
     const latestDoc = await db
-      .collection(collection)
+      .collection<ChangeDoc>(collection)
       .findOne({}, { sort: { createdAt: -1 } });
 
     // If the view count is the same, stop function execution
@@ -85,12 +90,13 @@ export const monitor = async (context?: Context): Promise<void> => {
       },
     });
 
+    const dbUpdateDoc: ChangeDoc = {
+      changeTimestamp: date,
+      viewCount: currentViewCount,
+    };
+
     // Add change to database
-    await db.collection(collection).insertOne({
-      timestamp: date,
-      // viewsBefore: previousViews,
-      currentViewCount,
-    });
+    await db.collection(collection).insertOne(dbUpdateDoc);
 
     // Send email
     const changeMessage = `Content changed at ${date.toISOString()}`;
