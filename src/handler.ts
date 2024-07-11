@@ -6,22 +6,18 @@ import credentials from "../credentials.json";
 
 dotenv.config();
 
-const sheets = google.sheets("v4");
-
 let previousContent = "";
 
+// Acquire an auth client, and bind it to all future calls
 const auth = new google.auth.GoogleAuth({
   credentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
-
-// Acquire an auth client, and bind it to all future calls
 google.options({ auth: auth });
 
-// Replace with your spreadsheet ID and range
+// Setup google sheets options
+const sheets = google.sheets("v4");
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-
-// Example data to write
 const valueInputOption = "RAW";
 
 export const monitor = async (): Promise<void> => {
