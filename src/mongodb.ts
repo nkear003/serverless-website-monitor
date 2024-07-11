@@ -1,12 +1,11 @@
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import type { Payload } from "./types";
 
 dotenv.config();
 
 let cachedClient: MongoClient | null = null;
 
-export async function connectToDatabase() {
+export default async function connectToDatabase() {
   const dbName = process.env.DB_NAME || "default";
   if (!process.env.DB_NAME) {
     console.warn("Missing DB name in environment variables, using default");
@@ -30,28 +29,5 @@ export async function connectToDatabase() {
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
     throw err;
-  }
-}
-
-export async function writeOneToDb(
-  payload: Payload,
-  collection: string = process.env.DB_COLLECTION_NAME || "default"
-) {
-  if (!payload) throw new Error("Missing payload");
-
-  try {
-    const db = await connectToDatabase();
-    await db.collection(collection).insertOne(payload);
-    console.info("Data written to MongoDB");
-  } catch (err) {
-    console.error("Error writing to database:", err);
-  }
-}
-
-export async function closeDatabaseConnection() {
-  if (cachedClient) {
-    await cachedClient.close();
-    console.log("MongoDB connection closed");
-    cachedClient = null;
   }
 }

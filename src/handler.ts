@@ -1,5 +1,5 @@
 import { getRange, notifyChangeMock, fetchWebsiteContent } from "./functions";
-import { writeOneToDb } from "./mongodb";
+import connectToDatabase from "./mongodb";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 import credentials from "../credentials.json";
@@ -20,8 +20,13 @@ const sheets = google.sheets("v4");
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 const valueInputOption = "RAW";
 
+// Setup mongoDB
+const collection = process.env.DB_COLLECTION_NAME || "default";
+
 export const monitor = async (): Promise<void> => {
   try {
+    const db = await connectToDatabase();
+
     const currentContent = await fetchWebsiteContent();
     if (!currentContent) return;
 
@@ -39,7 +44,7 @@ export const monitor = async (): Promise<void> => {
         },
       });
 
-      await writeOneToDb({ message: changeMessage });
+      await db.collection(collection).insertOne({ message: changeMessage });
       await notifyChangeMock(changeMessage);
       previousContent = currentContent;
     }
