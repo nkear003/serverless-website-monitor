@@ -11,12 +11,18 @@ const { GOOGLE_SHEET_ID: spreadsheetId, GOOGLE_SHEET_NAME: sheetName } =
 
 const sheets = google.sheets("v4");
 
+/**
+ * Checks the Google Sheet for the available free row
+ * 
+ * @returns The range in the Google Sheet document where we should write to in the format for Google Sheets API. Example: Sheet1!1:1
+ */
 export const getRange = async (): Promise<string> => {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: "Sheet1!A:A",
   });
 
+  // Checks to see how many rows there are, if there is something there, return next available row, otherwise return the first row
   const rows = res.data.values;
   const rowNumber = rows ? rows.length + 1 : 1;
   return `${sheetName}!${rowNumber}:${rowNumber}`; // Example Sheet1!1:1
